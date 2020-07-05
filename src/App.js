@@ -108,14 +108,14 @@ const getDifferenceOffset = (index, difference) => {
     : index + 1
 }
 
+const divisor = 7
+const denominator = 3423
+
 function App() {
-  const divisor = 2
-  const denominator = 97104
-  // const numerator = 48662
   const [done, setDone] = useState(false)
   const [index, setIndex] = useState(0)
   const [numerator, setNumerator] = useState()
-  const [proposedLittleNumerator, setProposedLittleNumerator] = useState(4)
+  const [proposedLittleNumerator, setProposedLittleNumerator] = useState(1)
   const product = proposedLittleNumerator * divisor
   const [pairs, setPairs] = useState([])
   const nextLittleDenominator = pairs.length
@@ -217,7 +217,7 @@ function App() {
             value={isNaN(proposedLittleNumerator) ? '' : proposedLittleNumerator}
             onChange={x => setProposedLittleNumerator(parseInt(x.target.value))}
             type="number"
-            min="1"
+            min="0"
             max="9"
           />
           <button>OK</button>
