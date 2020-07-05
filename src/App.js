@@ -102,6 +102,12 @@ const Main = (props) => {
   )
 }
 
+const getDifferenceOffset = (index, difference) => {
+  return digits(Math.abs(difference)).length === 2
+    ? index
+    : index + 1
+}
+
 function App() {
   const divisor = 2
   const denominator = 97104
@@ -137,8 +143,8 @@ function App() {
     setIndex(index + 1)
   }
 
-
   const difference = remainder
+  const differenceOffset = getDifferenceOffset(index, difference)
 
   return (
     <div className="App">
@@ -155,15 +161,15 @@ function App() {
             denominator={denominator}
           />
           {
-            pairs.map(x => {
+            pairs.map((x, i) => {
               return (
                 <>
                   <Product
-                    offset={0}
+                    offset={i}
                     value={x.product}
                   />
                   <Row
-                    offset={1}
+                    offset={1 + getDifferenceOffset(i, x.remainder)}
                     values={digits(x.remainder)}
                     className={x.remainder}
                   />
@@ -171,14 +177,13 @@ function App() {
               )
             })
           }
-
           <Product
             offset={index}
             value={product}
             hasFocus
           />
           <Row
-            offset={index + 2 - (digits.length)}
+            offset={differenceOffset}
             values={digits(Math.abs(difference))}
             className={difference < 0 ? 'red' : ''}
           />
