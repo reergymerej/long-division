@@ -132,7 +132,7 @@ const Problem = (props) => {
     }
     setPairs(nextPairs)
 
-    setProposedLittleNumerator(1)
+    setProposedLittleNumerator(0)
     setIndex(index + 1)
     const isDone = index + 1 >= digits(props.denominator).length
     setDone(isDone)

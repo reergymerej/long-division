@@ -31,21 +31,33 @@ td {
   color: #ccc;
 }
 
+.dim td {
+  font-size: 0.7em;
+  width: 1em;
+  height: 0.7em;
+  border-color: #ccc;
+}
+
 .orange {
-  color: purple;
+  color: #8b09ea;
   font-weight: bold;
 }
 
 .green {
-  color: green;
+  color: #463bdc;
   font-weight: bold;
 }
 
 .blue {
-  color: blue;
+  color: #28b561;
   font-weight: bold;
 }
 
 .red {
   color: red;
+}
+
+.footer {
+  font-size: 0.6em;
+  text-align: right;
 }
