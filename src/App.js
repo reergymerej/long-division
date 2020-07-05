@@ -112,6 +112,7 @@ function App() {
   const divisor = 2
   const denominator = 97104
   // const numerator = 48662
+  const [done, setDone] = useState(false)
   const [index, setIndex] = useState(0)
   const [numerator, setNumerator] = useState()
   const [proposedLittleNumerator, setProposedLittleNumerator] = useState(4)
@@ -126,11 +127,6 @@ function App() {
   const handleOk = (event) => {
     event.preventDefault()
     event.stopPropagation()
-    const nextNumerator = numerator === undefined
-      ? proposedLittleNumerator + ''
-      : numerator + proposedLittleNumerator + ''
-
-    setNumerator(nextNumerator)
 
     const nextPairs = pairs
     pairs[index] = {
@@ -141,6 +137,14 @@ function App() {
 
     setProposedLittleNumerator(1)
     setIndex(index + 1)
+    const isDone = index + 1 >= digits(denominator).length
+    setDone(isDone)
+
+    const nextNumerator = numerator === undefined
+      ? proposedLittleNumerator + ''
+      : numerator + proposedLittleNumerator + ''
+
+    setNumerator(nextNumerator)
   }
 
   const difference = remainder
@@ -152,8 +156,12 @@ function App() {
         <tbody>
           <Numerator
             divisor={divisor}
-            proposed={proposedLittleNumerator}
+            proposed={!done ? proposedLittleNumerator : ''}
             value={numerator}
+            remainder={done
+              ? pairs[pairs.length - 1].remainder
+              : null
+            }
           />
           <Main
             focus={index}
@@ -171,44 +179,51 @@ function App() {
                   <Row
                     offset={1 + getDifferenceOffset(i, x.remainder)}
                     values={digits(x.remainder)}
-                    className={x.remainder}
+                    className={i === pairs.length - 1 ? 'bold': 'dim'}
                   />
                 </>
               )
             })
           }
-          <Product
-            offset={index}
-            value={product}
-            hasFocus
-          />
-          <Row
-            offset={differenceOffset}
-            values={digits(Math.abs(difference))}
-            className={difference < 0 ? 'red' : ''}
-          />
+          {!done &&
+          <>
+            <Product
+              offset={index}
+              value={product}
+              hasFocus
+            />
+            <Row
+              offset={differenceOffset}
+              values={digits(Math.abs(difference))}
+              className={difference < 0 ? 'red' : ''}
+            />
+          </>
+          }
         </tbody>
       </table>
-
-      <p>
-        How many times does <span className="green">{divisor}</span>
-        &nbsp;go into <span className="bold">{nextLittleDenominator}</span>?
-      </p>
-      <Equation
-        x={proposedLittleNumerator}
-        y={divisor}
-        z={divisor * proposedLittleNumerator}
-      />
-      <form onSubmit={handleOk}>
-        <input
-          value={isNaN(proposedLittleNumerator) ? '' : proposedLittleNumerator}
-          onChange={x => setProposedLittleNumerator(parseInt(x.target.value))}
-          type="number"
-          min="1"
-          max="9"
+      {!done &&
+      <>
+        <p>
+          How many times does <span className="green">{divisor}</span>
+          &nbsp;go into <span className="bold">{nextLittleDenominator}</span>?
+        </p>
+        <Equation
+          x={proposedLittleNumerator}
+          y={divisor}
+          z={divisor * proposedLittleNumerator}
         />
-        <button>OK</button>
-      </form>
+        <form onSubmit={handleOk}>
+          <input
+            value={isNaN(proposedLittleNumerator) ? '' : proposedLittleNumerator}
+            onChange={x => setProposedLittleNumerator(parseInt(x.target.value))}
+            type="number"
+            min="1"
+            max="9"
+          />
+          <button>OK</button>
+        </form>
+      </>
+      }
     </div>
   )
 }
