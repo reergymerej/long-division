@@ -3,12 +3,46 @@ table {
 }
 
 td {
-  padding: 1em;
+  width: 2em;
+  height: 2em;
+  text-align: center;
 }
 
 .border-left {
   border-left: 1px solid black;
 }
+
 .border-top {
   border-top: 1px solid black;
+}
+
+.border-bottom {
+  border-bottom: 1px solid black;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.dim {
+  color: #ccc;
+}
+
+.orange {
+  color: orange;
+  font-weight: bold;
+}
+
+.green {
+  color: green;
+  font-weight: bold;
+}
+
+.blue {
+  color: blue;
+  font-weight: bold;
+}
+
+.red {
+  color: red;
 }

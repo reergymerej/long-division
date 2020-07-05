@@ -4,8 +4,10 @@ import './App.css'
 const Row = (props) => {
   const withOffset = [...props.values]
   let {offset} = props
+  const cellClassesWithOffset = [...props.cellClasses || []]
   while (offset > 0 && offset--) {
     withOffset.unshift(null)
+    cellClassesWithOffset.unshift(null)
   }
   return (
     <tr className={props.className || ''}>
@@ -13,13 +15,27 @@ const Row = (props) => {
         return (
           <td
             key={i}
-            className={(props.cellClasses || [])[i] || ''}
+            className={(cellClassesWithOffset)[i] || ''}
           >
             {x}
           </td>
         )
       })}
     </tr>
+  )
+}
+
+const Product = (props) => {
+  const values = digits(props.value)
+  values[0] = '-' + values[0]
+  const offset = 2 - digits(props.value).length
+  return (
+    <Row
+      className="blue"
+      offset={offset}
+      values={values}
+      cellClasses={values.map(_ => 'border-bottom')}
+    />
   )
 }
 
@@ -35,6 +51,9 @@ const Numerator = (props) => {
     <Row
       offset={digits(props.divisor).length}
       values={values}
+      cellClasses={[
+        'orange',
+      ]}
     />
   )
 }
@@ -44,12 +63,17 @@ const Main = (props) => {
     ...digits(props.divisor),
     ...digits(props.denominator),
   ]
+  const focus = 0
   const cellClasses = [
-    ...digits(props.divisor).map(_ => null),
+    ...digits(props.divisor).map(_ => 'green'),
     ...digits(props.denominator).map((_, i) => {
-      return i === 0
+      const dimClass = i !== focus
+        ? 'dim '
+        : 'bold '
+      const borderClasses = i === 0
         ? 'border-left border-top'
         : 'border-top'
+      return dimClass + borderClasses
     }),
   ]
   return (
@@ -71,6 +95,9 @@ function App() {
   const product = proposedLittleNumerator * divisor
   const remainder = nextLittleDenominator - (product)
 
+  const handleOk = () => {
+  }
+
   return (
     <div className="App">
       <table>
@@ -83,13 +110,13 @@ function App() {
             divisor={divisor}
             denominator={denominator}
           />
-          <Row
-            offset={2 - digits(product).length}
-            values={digits(product)}
+          <Product
+            value={product}
           />
           <Row
             offset={1}
             values={[remainder]}
+            className={remainder < 0 ? 'red' : ''}
           />
           {/*
           <Row
@@ -125,15 +152,24 @@ function App() {
       </table>
 
       <p>
-        How many times does {divisor} go into {nextLittleDenominator}?
+        How many times does <span className="green">{divisor}</span>
+        &nbsp;go into <span className="bold">{nextLittleDenominator}</span>?
       </p>
-      <input
-        value={isNaN(proposedLittleNumerator) ? '' : proposedLittleNumerator}
-        onChange={x => setProposedLittleNumerator(parseInt(x.target.value))}
-        type="number"
-        min="1"
-        max="9"
-      />
+      <p>
+        <span className="green">{divisor}</span>
+        &nbsp;x <span className="orange">{proposedLittleNumerator}</span> =
+        &nbsp;<span className="blue">{divisor * proposedLittleNumerator}</span>
+      </p>
+      <form onSubmit={handleOk}>
+        <input
+          value={isNaN(proposedLittleNumerator) ? '' : proposedLittleNumerator}
+          onChange={x => setProposedLittleNumerator(parseInt(x.target.value))}
+          type="number"
+          min="1"
+          max="9"
+        />
+        <button>OK</button>
+      </form>
     </div>
   )
 }
