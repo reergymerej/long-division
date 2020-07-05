@@ -112,7 +112,7 @@ const Problem = (props) => {
   const [done, setDone] = useState(false)
   const [index, setIndex] = useState(0)
   const [numerator, setNumerator] = useState()
-  const [proposedLittleNumerator, setProposedLittleNumerator] = useState(1)
+  const [proposedLittleNumerator, setProposedLittleNumerator] = useState(0)
   const product = proposedLittleNumerator * props.divisor
   const [pairs, setPairs] = useState([])
   const nextLittleDenominator = pairs.length
