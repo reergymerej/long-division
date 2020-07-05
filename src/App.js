@@ -1,6 +1,18 @@
 import React, { useState } from 'react'
 import './App.css'
 
+const Equation = ({x, y, z}) => {
+  return (
+      <p>
+        <span className="orange">{x}</span>
+        x
+        <span className="green">{y}</span>
+        =
+        <span className="blue">{z}</span>
+      </p>
+  )
+}
+
 const Row = (props) => {
   const withOffset = [...props.values]
   let {offset} = props
@@ -28,10 +40,11 @@ const Row = (props) => {
 const Product = (props) => {
   const values = digits(props.value)
   values[0] = '-' + values[0]
-  const offset = 2 - digits(props.value).length
+  const offset = props.offset + 2 - digits(props.value).length
+  const className = props.hasFocus ? 'blue' : 'dim'
   return (
     <Row
-      className="blue"
+      className={className}
       offset={offset}
       values={values}
       cellClasses={values.map(_ => 'border-bottom')}
@@ -42,18 +55,22 @@ const Product = (props) => {
 const digits = (x) => x.toString().split('').map(x => parseInt(x))
 
 const Numerator = (props) => {
-  const values = props.numerator
-    ? [
-      ...digits(props.numerator),
-    ]
-    : []
+  const values = [
+    ...(props.value || []),
+  ]
+  if (props.proposed !== undefined) {
+    values.push(props.proposed)
+  }
+
   return (
     <Row
       offset={digits(props.divisor).length}
       values={values}
-      cellClasses={[
-        'orange',
-      ]}
+      cellClasses={values.map((_, i) => {
+        return i === values.length - 1
+          ? 'orange'
+          : 'dim'
+      })}
     />
   )
 }
@@ -63,13 +80,13 @@ const Main = (props) => {
     ...digits(props.divisor),
     ...digits(props.denominator),
   ]
-  const focus = 0
+  const {focus} = props
   const cellClasses = [
     ...digits(props.divisor).map(_ => 'green'),
     ...digits(props.denominator).map((_, i) => {
-      const dimClass = i !== focus
-        ? 'dim '
-        : 'bold '
+      const dimClass = focus === 0 && i === 0
+        ? 'bold '
+        : 'dim '
       const borderClasses = i === 0
         ? 'border-left border-top'
         : 'border-top'
@@ -89,14 +106,39 @@ function App() {
   const divisor = 2
   const denominator = 97104
   // const numerator = 48662
-  const numerator = undefined
-  const nextLittleDenominator = digits(denominator)[0]
+  const [index, setIndex] = useState(0)
+  const [numerator, setNumerator] = useState()
   const [proposedLittleNumerator, setProposedLittleNumerator] = useState(4)
   const product = proposedLittleNumerator * divisor
-  const remainder = nextLittleDenominator - (product)
+  const [pairs, setPairs] = useState([])
+  const nextLittleDenominator = pairs.length
+    ? pairs[index - 1].remainder
+    : digits(denominator)[index]
 
-  const handleOk = () => {
+  const remainder = nextLittleDenominator - product
+
+  const handleOk = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const nextNumerator = numerator === undefined
+      ? proposedLittleNumerator + ''
+      : numerator + proposedLittleNumerator + ''
+
+    setNumerator(nextNumerator)
+
+    const nextPairs = pairs
+    pairs[index] = {
+      product,
+      remainder: parseInt([remainder, digits(denominator)[index + 1]].join('')),
+    }
+    setPairs(nextPairs)
+
+    setProposedLittleNumerator(1)
+    setIndex(index + 1)
   }
+
+
+  const difference = remainder
 
   return (
     <div className="App">
@@ -104,50 +146,42 @@ function App() {
         <tbody>
           <Numerator
             divisor={divisor}
-            numerator={proposedLittleNumerator}
+            proposed={proposedLittleNumerator}
+            value={numerator}
           />
           <Main
+            focus={index}
             divisor={divisor}
             denominator={denominator}
           />
+          {
+            pairs.map(x => {
+              return (
+                <>
+                  <Product
+                    offset={0}
+                    value={x.product}
+                  />
+                  <Row
+                    offset={1}
+                    values={digits(x.remainder)}
+                    className={x.remainder}
+                  />
+                </>
+              )
+            })
+          }
+
           <Product
+            offset={index}
             value={product}
+            hasFocus
           />
           <Row
-            offset={1}
-            values={[remainder]}
-            className={remainder < 0 ? 'red' : ''}
+            offset={index + 2 - (digits.length)}
+            values={digits(Math.abs(difference))}
+            className={difference < 0 ? 'red' : ''}
           />
-          {/*
-          <Row
-            offset={1}
-            values={[1, 6]}
-          />
-          <Row
-            offset={2}
-            values={[1, 1]}
-          />
-          <Row
-            offset={2}
-            values={[1, 0]}
-          />
-          <Row
-            offset={3}
-            values={[1, 0]}
-          />
-          <Row
-            offset={3}
-            values={[1, 0]}
-          />
-          <Row
-            offset={4}
-            values={[0, 4]}
-          />
-          <Row
-            offset={5}
-            values={[4]}
-          />
-          */}
         </tbody>
       </table>
 
@@ -155,11 +189,11 @@ function App() {
         How many times does <span className="green">{divisor}</span>
         &nbsp;go into <span className="bold">{nextLittleDenominator}</span>?
       </p>
-      <p>
-        <span className="green">{divisor}</span>
-        &nbsp;x <span className="orange">{proposedLittleNumerator}</span> =
-        &nbsp;<span className="blue">{divisor * proposedLittleNumerator}</span>
-      </p>
+      <Equation
+        x={proposedLittleNumerator}
+        y={divisor}
+        z={divisor * proposedLittleNumerator}
+      />
       <form onSubmit={handleOk}>
         <input
           value={isNaN(proposedLittleNumerator) ? '' : proposedLittleNumerator}
